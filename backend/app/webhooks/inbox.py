@@ -23,6 +23,7 @@ from app.webhooks import razorpay
 
 MAX_ATTEMPTS = 5
 PROVIDER_HANDLERS = {"razorpay": razorpay.HANDLERS}
+PROVIDER_ORDER_EFFECTS = {"razorpay": razorpay.ORDER_EFFECTS}
 
 
 def record_event(
@@ -46,20 +47,24 @@ def process_event(session: Session, event: WebhookEvent) -> WebhookEvent:
     event_pk = event.id
     try:
         handler = PROVIDER_HANDLERS[event.provider].get(event.event_type)
-        if handler is None:
+        order_effect = PROVIDER_ORDER_EFFECTS[event.provider].get(event.event_type)
+        if handler is None and order_effect is None:
             event.status = WebhookStatus.IGNORED.value
         else:
-            spec = handler(event.payload)
-            already_posted = session.scalar(
-                select(JournalEntry.id).where(JournalEntry.idempotency_key == spec.idempotency_key)
-            )
-            if not already_posted:
-                post_entry(session, spec.description, spec.lines, spec.idempotency_key, commit=False)
+            if handler is not None:
+                spec = handler(event.payload)
+                already_posted = session.scalar(
+                    select(JournalEntry.id).where(JournalEntry.idempotency_key == spec.idempotency_key)
+                )
+                if not already_posted:
+                    post_entry(session, spec.description, spec.lines, spec.idempotency_key, commit=False)
+            if order_effect is not None:
+                order_effect(session, event.payload)  # may raise, e.g. OverRefundError
             event.status = WebhookStatus.PROCESSED.value
         event.attempts += 1
         event.processed_at = utcnow()
         event.last_error = None
-        session.commit()  # entry + status saved together, or not at all
+        session.commit()  # ledger entry + order change + event status: all or nothing
     except Exception as exc:  # noqa: BLE001 - we want to record ANY failure
         session.rollback()
         event = session.get(WebhookEvent, event_pk)

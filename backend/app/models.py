@@ -125,3 +125,69 @@ class WebhookEvent(Base):
     last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
     received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class OrderStatus(StrEnum):
+    CREATED = "created"                        # waiting for payment
+    PAID = "paid"
+    PARTIALLY_REFUNDED = "partially_refunded"
+    REFUNDED = "refunded"                      # fully refunded (terminal)
+    FAILED = "failed"                          # last payment attempt failed (customer can retry)
+    CANCELLED = "cancelled"                    # abandoned before payment (terminal)
+
+
+class Order(Base):
+    __tablename__ = "orders"
+    __table_args__ = (
+        CheckConstraint("amount_paise > 0", name="ck_order_amount_positive"),
+        CheckConstraint(
+            "amount_refunded_paise >= 0 AND amount_refunded_paise <= amount_paise",
+            name="ck_order_refund_within_amount",  # DB-level guard against over-refunds
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    external_id: Mapped[str] = mapped_column(String(100), unique=True)  # store's own order no.
+    amount_paise: Mapped[int] = mapped_column(BigInteger)
+    currency: Mapped[str] = mapped_column(String(3), default="INR")
+    status: Mapped[str] = mapped_column(String(30), default=OrderStatus.CREATED.value, index=True)
+    gateway: Mapped[str] = mapped_column(String(20), default="razorpay")
+    gateway_order_id: Mapped[str] = mapped_column(String(100), unique=True)
+    gateway_payment_id: Mapped[str | None] = mapped_column(String(100), unique=True, nullable=True)
+    amount_refunded_paise: Mapped[int] = mapped_column(BigInteger, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+
+    history: Mapped[list["OrderEvent"]] = relationship(
+        back_populates="order", order_by="OrderEvent.created_at", lazy="selectin"
+    )
+    refunds: Mapped[list["Refund"]] = relationship(
+        back_populates="order", order_by="Refund.created_at", lazy="selectin"
+    )
+
+
+class OrderEvent(Base):
+    """Audit trail: every status change (and notable incident) on an order, forever."""
+    __tablename__ = "order_events"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    order_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("orders.id"), index=True)
+    from_status: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    to_status: Mapped[str] = mapped_column(String(30))
+    note: Mapped[str] = mapped_column(String(500))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    order: Mapped[Order] = relationship(back_populates="history")
+
+
+class Refund(Base):
+    __tablename__ = "refunds"
+    __table_args__ = (CheckConstraint("amount_paise > 0", name="ck_refund_amount_positive"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    order_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("orders.id"), index=True)
+    gateway_refund_id: Mapped[str] = mapped_column(String(100), unique=True)
+    amount_paise: Mapped[int] = mapped_column(BigInteger)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    order: Mapped[Order] = relationship(back_populates="refunds")

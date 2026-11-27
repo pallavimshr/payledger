@@ -46,3 +46,39 @@ class JournalEntryOut(BaseModel):
     idempotency_key: str | None
     occurred_at: datetime
     lines: list[PostingOut]
+
+
+class OrderCreate(BaseModel):
+    external_id: str = Field(min_length=1, max_length=100, examples=["ORD-1001"])
+    amount_paise: int = Field(gt=0, examples=[100000])
+
+
+class OrderEventOut(BaseModel):
+    from_status: str | None
+    to_status: str
+    note: str
+    created_at: datetime
+
+
+class RefundOut(BaseModel):
+    gateway_refund_id: str
+    amount_paise: int
+    created_at: datetime
+
+
+class OrderOut(BaseModel):
+    id: uuid.UUID
+    external_id: str
+    amount_paise: int
+    amount_refunded_paise: int
+    refundable_paise: int
+    currency: str
+    status: str
+    gateway_order_id: str
+    gateway_payment_id: str | None
+    created_at: datetime
+
+
+class OrderDetail(OrderOut):
+    history: list[OrderEventOut]
+    refunds: list[RefundOut]

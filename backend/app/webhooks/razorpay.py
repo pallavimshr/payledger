@@ -8,6 +8,7 @@ import hashlib
 import hmac
 from dataclasses import dataclass
 
+from app import orders
 from app.ledger import PostingLine
 from app.models import Direction
 
@@ -107,4 +108,29 @@ HANDLERS = {
     "payment.captured": payment_captured,
     "refund.processed": refund_processed,
     "settlement.processed": settlement_processed,
+}
+
+
+# ---- Order side effects (run in the SAME transaction as the ledger entry) ----
+
+def _order_payment_captured(session, event: dict) -> None:
+    p = _entity(event, "payment")
+    orders.on_payment_captured(session, p.get("order_id"), p["id"], int(p["amount"]))
+
+
+def _order_payment_failed(session, event: dict) -> None:
+    p = _entity(event, "payment")
+    reason = p.get("error_description") or p.get("error_code") or "unknown"
+    orders.on_payment_failed(session, p.get("order_id"), p["id"], reason)
+
+
+def _order_refund_processed(session, event: dict) -> None:
+    r = _entity(event, "refund")
+    orders.on_refund_processed(session, r.get("payment_id"), r["id"], int(r["amount"]))
+
+
+ORDER_EFFECTS = {
+    "payment.captured": _order_payment_captured,
+    "payment.failed": _order_payment_failed,   # no money moved, so no ledger entry
+    "refund.processed": _order_refund_processed,
 }

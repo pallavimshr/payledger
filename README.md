@@ -4,7 +4,7 @@ A double-entry payments ledger for online stores: every rupee is recorded as a
 balanced journal entry, payment-gateway webhooks are processed exactly once, and
 an AI agent reconciles gateway settlement reports against the books.
 
-> Status: **Ledger core** ✅ · **Razorpay webhooks (exactly-once)** ✅ · Order state machine · Dashboard · AI reconciliation
+> Status: **Ledger core** ✅ · **Razorpay webhooks (exactly-once)** ✅ · **Orders + partial refunds** ✅ · Dashboard · AI reconciliation
 
 ## Why
 
@@ -41,6 +41,22 @@ Example: a ₹1,000 sale with a ₹20 gateway fee:
 | `expenses:gateway_fees` | 2,000 | |
 | `revenue:sales` | | 100,000 |
 
+## Orders
+
+```
+            ┌──────────► cancelled
+  created ──┼──► paid ──► partially_refunded ──► refunded
+            ▼     ▲
+          failed ─┘  (customer retries payment)
+```
+
+- Only whitelisted transitions are allowed; every change is written to an audit trail (`order_events`).
+- Webhooks update the order **in the same transaction** as the ledger entry: both happen or neither.
+- **Over-refund protection** in three layers: application check, `SELECT … FOR UPDATE` row lock
+  (two simultaneous refunds can't both pass), and a DB `CHECK (amount_refunded <= amount)`.
+- Edge cases handled: duplicate charges are flagged (not lost), late failures of an old attempt
+  can't un-pay a paid order, payments on cancelled orders are rejected for manual review.
+
 ## Tech stack
 
 FastAPI · SQLAlchemy 2 · PostgreSQL 16 · Alembic · Pydantic · pytest + Hypothesis · Docker · uv
@@ -55,7 +71,8 @@ make db        # start Postgres in Docker
 make migrate   # create tables
 make seed      # add default accounts
 make dev       # API at http://localhost:8000/docs
-make test      # run tests
+make test      # run tests (fast, SQLite)
+make test-pg   # run tests on Postgres, including the concurrent-refund race test
 
 # Try webhooks without a Razorpay account (API must be running):
 make fake-payment                                                  # signed ₹1,000 payment
@@ -70,6 +87,7 @@ backend/
   app/
     models.py      # tables: accounts, journal_entries, postings
     ledger.py      # validate_entry, post_entry, balances (the core)
+    orders.py      # order state machine, refunds, row locking
     api/routes.py  # HTTP endpoints
     seed.py        # default chart of accounts
     webhooks/
