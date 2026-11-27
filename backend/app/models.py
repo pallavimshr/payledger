@@ -191,3 +191,59 @@ class Refund(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     order: Mapped[Order] = relationship(back_populates="refunds")
+
+
+class ReconStatus(StrEnum):
+    MATCHED = "matched"
+    AMOUNT_MISMATCH = "amount_mismatch"        # gateway and ledger disagree on the amount
+    FEE_MISMATCH = "fee_mismatch"              # same amount, different gateway fee
+    MISSING_IN_LEDGER = "missing_in_ledger"    # in the report, never recorded by us
+    MISSING_IN_REPORT = "missing_in_report"    # we recorded it, gateway hasn't settled it
+
+
+class Resolution(StrEnum):
+    OPEN = "open"
+    ACCEPTED = "accepted"     # suggested correction posted to the ledger
+    DISMISSED = "dismissed"   # reviewed, no action needed
+    NONE = "none"             # matched rows need nothing
+
+
+class ReconciliationRun(Base):
+    __tablename__ = "reconciliation_runs"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    source_filename: Mapped[str] = mapped_column(String(255))
+    rows_in_report: Mapped[int] = mapped_column(Integer)
+    ai_model: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    items: Mapped[list["ReconciliationItem"]] = relationship(
+        back_populates="run", order_by="ReconciliationItem.position", lazy="selectin"
+    )
+
+
+class ReconciliationItem(Base):
+    __tablename__ = "reconciliation_items"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    run_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("reconciliation_runs.id"), index=True)
+    position: Mapped[int] = mapped_column(Integer)
+    entity_type: Mapped[str] = mapped_column(String(30))     # payment / refund / adjustment
+    entity_id: Mapped[str] = mapped_column(String(100), index=True)
+    status: Mapped[str] = mapped_column(String(30), index=True)
+    report_amount_paise: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    ledger_amount_paise: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    report_fee_paise: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    ledger_fee_paise: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    report_row: Mapped[dict | None] = mapped_column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
+    journal_entry_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("journal_entries.id"), nullable=True)
+    # AI output (None until explained). Suggestions are validated before being stored.
+    ai_explanation: Mapped[str | None] = mapped_column(Text, nullable=True)
+    ai_cause: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    ai_confidence: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    ai_suggestion: Mapped[dict | None] = mapped_column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
+    ai_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    resolution: Mapped[str] = mapped_column(String(20), default=Resolution.OPEN.value)
+    resolved_entry_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("journal_entries.id"), nullable=True)
+
+    run: Mapped[ReconciliationRun] = relationship(back_populates="items")

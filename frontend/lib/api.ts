@@ -1,6 +1,6 @@
 // Typed access to the PayLedger API. Runs on the server (React Server Components),
 // so the browser never talks to the backend directly.
-const API_URL = process.env.API_URL ?? "http://localhost:8000";
+export const API_URL = process.env.API_URL ?? "http://localhost:8000";
 
 export type OrderStatus =
   | "created" | "paid" | "partially_refunded" | "refunded" | "failed" | "cancelled";
@@ -63,6 +63,49 @@ export interface JournalEntry {
   lines: { account_code: string; direction: "debit" | "credit"; amount_paise: number }[];
 }
 
+export type ReconStatus = "matched" | "amount_mismatch" | "fee_mismatch" | "missing_in_ledger" | "missing_in_report";
+export type Resolution = "open" | "accepted" | "dismissed" | "none";
+
+export interface SuggestedEntry {
+  description: string;
+  lines: { account_code: string; direction: "debit" | "credit"; amount_paise: number }[];
+}
+
+export interface ReconItem {
+  id: string;
+  position: number;
+  entity_type: "payment" | "refund" | "adjustment";
+  entity_id: string;
+  status: ReconStatus;
+  resolution: Resolution;
+  report_amount_paise: number | null;
+  ledger_amount_paise: number | null;
+  report_fee_paise: number | null;
+  ledger_fee_paise: number | null;
+  report_row: Record<string, string> | null;
+  ai: null | {
+    explanation: string | null;
+    cause: string | null;
+    confidence: "low" | "medium" | "high" | null;
+    suggestion: SuggestedEntry | null;
+    error: string | null;
+  };
+}
+
+export interface ReconRun {
+  id: string;
+  source_filename: string;
+  rows_in_report: number;
+  ai_model: string | null;
+  created_at: string;
+  by_status: Partial<Record<ReconStatus, number>>;
+  open_items: number;
+}
+
+export interface ReconRunDetail extends ReconRun {
+  items: ReconItem[];
+}
+
 export class ApiError extends Error {}
 
 async function get<T>(path: string): Promise<T> {
@@ -76,8 +119,8 @@ async function get<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export async function post<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, { method: "POST", cache: "no-store" });
+export async function post<T>(path: string, body?: FormData): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, { method: "POST", cache: "no-store", body });
   if (!res.ok) throw new ApiError((await res.json().catch(() => ({})))?.detail ?? `${path} failed`);
   return res.json() as Promise<T>;
 }
@@ -103,6 +146,8 @@ export const api = {
   order: (id: string) => get<OrderDetail>(`/orders/${id}`),
   webhooks: (status?: string) => get<WebhookEvent[]>(`/webhook-events?${qs({ status })}`),
   entries: (account?: string) => get<JournalEntry[]>(`/journal-entries?${qs({ account })}`),
+  recons: () => get<ReconRun[]>("/reconciliations"),
+  recon: (id: string) => get<ReconRunDetail>(`/reconciliations/${id}`),
 };
 
 // ---- formatting ----
@@ -117,13 +162,16 @@ export const money = (paise: number) => inr.format(paise / 100);
 export const moneyCompact = (paise: number) =>
   Math.abs(paise) < 1_00_000_00 ? inr.format(paise / 100) : inrCompact.format(paise / 100); // compact from ₹1 lakh
 
+/** Parse an API timestamp; one without a timezone is UTC (SQLite drops the offset). */
+const parseIso = (iso: string) => new Date(/([zZ]|[+-]\d\d:?\d\d)$/.test(iso) ? iso : `${iso}Z`);
+
 export const dateTime = (iso: string) =>
-  new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });
+  parseIso(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });
 
 const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 /** "just now", "5 min ago", "yesterday", ... */
 export function timeAgo(iso: string, now = Date.now()): string {
-  const sec = Math.round((new Date(iso).getTime() - now) / 1000);
+  const sec = Math.round((parseIso(iso).getTime() - now) / 1000);
   const abs = Math.abs(sec);
   if (abs < 45) return "just now";
   if (abs < 3600) return rtf.format(Math.round(sec / 60), "minute");

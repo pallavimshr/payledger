@@ -19,6 +19,12 @@ export const IconLedger = (p: SVGProps<SVGSVGElement>) => (
 export const IconWebhook = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base(p)}><path d="M13 2 4 14h7l-1 8 9-12h-7z" /></svg>
 );
+export const IconReconcile = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><path d="M4 7h11M4 7l3-3M4 7l3 3" /><path d="M20 17H9m11 0-3-3m3 3-3 3" /></svg>
+);
+export const IconSparkle = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6" /></svg>
+);
 export const IconSearch = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base(p)}><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
 );

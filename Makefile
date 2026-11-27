@@ -1,5 +1,5 @@
 # Shortcuts. Run `make help` to list them.
-.PHONY: help db db-down migrate seed dev test test-pg retry worker fake-payment demo web-install web
+.PHONY: help db db-down migrate seed dev test test-pg retry worker fake-payment demo demo-report ai-check eval web-install web
 
 help:
 	@echo "make db       - start Postgres in Docker"
@@ -13,6 +13,9 @@ help:
 	@echo "make worker   - keep retrying webhook events every 10s"
 	@echo "make fake-payment - send a signed fake Razorpay payment (Rs 1000)"
 	@echo "make demo     - fill the running API with realistic demo data"
+	@echo "make demo-report - download a sample settlement report (API must be running)"
+	@echo "make ai-check  - verify the Gemini key and model"
+	@echo "make eval      - measure AI reconciliation accuracy on 30 test cases"
 	@echo "make web-install - install dashboard dependencies (first time)"
 	@echo "make web      - run the dashboard at http://localhost:3000"
 
@@ -57,3 +60,12 @@ web-install:
 
 web:
 	cd frontend && npm run dev
+
+demo-report:
+	curl -s http://localhost:8000/reconciliations/sample-report -o razorpay_settlement_sample.csv && echo "Saved razorpay_settlement_sample.csv"
+
+ai-check:
+	cd backend && uv run python scripts/check_ai.py
+
+eval:
+	cd backend && uv run python -m evals.run_eval

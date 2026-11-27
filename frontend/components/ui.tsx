@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { dateTime, timeAgo, type OrderStatus, type WebhookStatus } from "@/lib/api";
+import { dateTime, timeAgo, type OrderStatus, type ReconStatus, type Resolution, type WebhookStatus } from "@/lib/api";
 
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
   return (
@@ -95,6 +95,23 @@ export function StatusDot({ status, note }: { status: OrderStatus; note?: boolea
     </span>
   );
 }
+const RECON_STATUS: Record<ReconStatus, { label: string; icon: string; tone: Tone }> = {
+  matched: { label: "Matched", icon: "✓", tone: "good" },
+  fee_mismatch: { label: "Fee mismatch", icon: "≠", tone: "warning" },
+  amount_mismatch: { label: "Amount mismatch", icon: "≠", tone: "critical" },
+  missing_in_ledger: { label: "Missing in ledger", icon: "?", tone: "critical" },
+  missing_in_report: { label: "Not yet settled", icon: "…", tone: "info" },
+};
+const RESOLUTION: Record<Resolution, { label: string; icon: string; tone: Tone }> = {
+  open: { label: "Needs review", icon: "○", tone: "info" },
+  accepted: { label: "Fix posted", icon: "✓", tone: "good" },
+  dismissed: { label: "Dismissed", icon: "–", tone: "neutral" },
+  none: { label: "No action", icon: "–", tone: "neutral" },
+};
+export const ReconBadge = ({ status }: { status: ReconStatus }) => <Badge {...RECON_STATUS[status]} />;
+export const ResolutionBadge = ({ r }: { r: Resolution }) => <Badge {...RESOLUTION[r]} />;
+export const reconStatusLabel = (s: ReconStatus) => RECON_STATUS[s].label;
+
 export const WebhookBadge = ({ status }: { status: WebhookStatus }) => <Badge {...WEBHOOK_STATUS[status]} />;
 export const orderStatusLabel = (s: OrderStatus) => ORDER_STATUS[s].label;
 

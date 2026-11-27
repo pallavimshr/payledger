@@ -1,0 +1,724 @@
+[
+ {
+  "name": "fee_0",
+  "facts": {
+   "status": "fee_mismatch",
+   "entity_type": "payment",
+   "entity_id": "pay_fee0",
+   "report_amount_paise": 100000,
+   "ledger_amount_paise": 100000,
+   "report_fee_paise": 3540,
+   "ledger_fee_paise": 2360,
+   "report_row": {
+    "description": "International card"
+   }
+  },
+  "causes": [
+   "fee_difference"
+  ],
+  "deltas": [
+   {
+    "expenses:gateway_fees": 1180,
+    "assets:razorpay_clearing": -1180
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "fee_1",
+  "facts": {
+   "status": "fee_mismatch",
+   "entity_type": "payment",
+   "entity_id": "pay_fee1",
+   "report_amount_paise": 249900,
+   "ledger_amount_paise": 249900,
+   "report_fee_paise": 8846,
+   "ledger_fee_paise": 5898,
+   "report_row": {
+    "description": "International card"
+   }
+  },
+  "causes": [
+   "fee_difference"
+  ],
+  "deltas": [
+   {
+    "expenses:gateway_fees": 2948,
+    "assets:razorpay_clearing": -2948
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "fee_2",
+  "facts": {
+   "status": "fee_mismatch",
+   "entity_type": "payment",
+   "entity_id": "pay_fee2",
+   "report_amount_paise": 54900,
+   "ledger_amount_paise": 54900,
+   "report_fee_paise": 1943,
+   "ledger_fee_paise": 1296,
+   "report_row": {
+    "description": ""
+   }
+  },
+  "causes": [
+   "fee_difference"
+  ],
+  "deltas": [
+   {
+    "expenses:gateway_fees": 647,
+    "assets:razorpay_clearing": -647
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "fee_3",
+  "facts": {
+   "status": "fee_mismatch",
+   "entity_type": "payment",
+   "entity_id": "pay_fee3",
+   "report_amount_paise": 199900,
+   "ledger_amount_paise": 199900,
+   "report_fee_paise": 5897,
+   "ledger_fee_paise": 4718,
+   "report_row": {
+    "description": "EMI"
+   }
+  },
+  "causes": [
+   "fee_difference"
+  ],
+  "deltas": [
+   {
+    "expenses:gateway_fees": 1179,
+    "assets:razorpay_clearing": -1179
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "fee_4",
+  "facts": {
+   "status": "fee_mismatch",
+   "entity_type": "payment",
+   "entity_id": "pay_fee4",
+   "report_amount_paise": 89900,
+   "ledger_amount_paise": 89900,
+   "report_fee_paise": 2504,
+   "ledger_fee_paise": 2122,
+   "report_row": {
+    "description": "Amex"
+   }
+  },
+  "causes": [
+   "fee_difference"
+  ],
+  "deltas": [
+   {
+    "expenses:gateway_fees": 382,
+    "assets:razorpay_clearing": -382
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "fee_5",
+  "facts": {
+   "status": "fee_mismatch",
+   "entity_type": "payment",
+   "entity_id": "pay_fee5",
+   "report_amount_paise": 149900,
+   "ledger_amount_paise": 149900,
+   "report_fee_paise": 0,
+   "ledger_fee_paise": 3538,
+   "report_row": {
+    "description": "Fee waived: promotional zero-MDR UPI"
+   }
+  },
+  "causes": [
+   "fee_difference"
+  ],
+  "deltas": [
+   {
+    "expenses:gateway_fees": -3538,
+    "assets:razorpay_clearing": 3538
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "missed_pay_0",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "payment",
+   "entity_id": "pay_miss0",
+   "report_amount_paise": 129900,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 3066,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": ""
+   }
+  },
+  "causes": [
+   "webhook_missed"
+  ],
+  "deltas": [
+   {
+    "assets:razorpay_clearing": 126834,
+    "expenses:gateway_fees": 3066,
+    "revenue:sales": -129900
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "missed_pay_1",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "payment",
+   "entity_id": "pay_miss1",
+   "report_amount_paise": 49900,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 1178,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": ""
+   }
+  },
+  "causes": [
+   "webhook_missed"
+  ],
+  "deltas": [
+   {
+    "assets:razorpay_clearing": 48722,
+    "expenses:gateway_fees": 1178,
+    "revenue:sales": -49900
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "missed_pay_2",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "payment",
+   "entity_id": "pay_miss2",
+   "report_amount_paise": 349900,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 8258,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": ""
+   }
+  },
+  "causes": [
+   "webhook_missed"
+  ],
+  "deltas": [
+   {
+    "assets:razorpay_clearing": 341642,
+    "expenses:gateway_fees": 8258,
+    "revenue:sales": -349900
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "missed_pay_3",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "payment",
+   "entity_id": "pay_miss3",
+   "report_amount_paise": 19900,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 470,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": ""
+   }
+  },
+  "causes": [
+   "webhook_missed"
+  ],
+  "deltas": [
+   {
+    "assets:razorpay_clearing": 19430,
+    "expenses:gateway_fees": 470,
+    "revenue:sales": -19900
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "missed_pay_4",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "payment",
+   "entity_id": "pay_miss4",
+   "report_amount_paise": 79900,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 1886,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": ""
+   }
+  },
+  "causes": [
+   "webhook_missed"
+  ],
+  "deltas": [
+   {
+    "assets:razorpay_clearing": 78014,
+    "expenses:gateway_fees": 1886,
+    "revenue:sales": -79900
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "missed_refund_0",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "refund",
+   "entity_id": "rfnd_miss0",
+   "report_amount_paise": 30000,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 0,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": ""
+   }
+  },
+  "causes": [
+   "webhook_missed"
+  ],
+  "deltas": [
+   {
+    "revenue:sales": 30000,
+    "assets:razorpay_clearing": -30000
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "missed_refund_1",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "refund",
+   "entity_id": "rfnd_miss1",
+   "report_amount_paise": 149900,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 0,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": ""
+   }
+  },
+  "causes": [
+   "webhook_missed"
+  ],
+  "deltas": [
+   {
+    "revenue:sales": 149900,
+    "assets:razorpay_clearing": -149900
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "missed_refund_2",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "refund",
+   "entity_id": "rfnd_miss2",
+   "report_amount_paise": 5000,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 0,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": ""
+   }
+  },
+  "causes": [
+   "webhook_missed"
+  ],
+  "deltas": [
+   {
+    "revenue:sales": 5000,
+    "assets:razorpay_clearing": -5000
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "chargeback_0",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "adjustment",
+   "entity_id": "adj_cb0",
+   "report_amount_paise": -99900,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 0,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": "Chargeback for pay_x0 (reason: product not received)"
+   }
+  },
+  "causes": [
+   "chargeback"
+  ],
+  "deltas": [
+   {
+    "revenue:sales": 99900,
+    "assets:razorpay_clearing": -99900
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "chargeback_1",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "adjustment",
+   "entity_id": "adj_cb1",
+   "report_amount_paise": -249900,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 0,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": "Chargeback for pay_x1 (reason: fraudulent transaction)"
+   }
+  },
+  "causes": [
+   "chargeback"
+  ],
+  "deltas": [
+   {
+    "revenue:sales": 249900,
+    "assets:razorpay_clearing": -249900
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "chargeback_2",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "adjustment",
+   "entity_id": "adj_cb2",
+   "report_amount_paise": -54900,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 0,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": "Chargeback for pay_x2 (reason: duplicate charge claimed by customer)"
+   }
+  },
+  "causes": [
+   "chargeback"
+  ],
+  "deltas": [
+   {
+    "revenue:sales": 54900,
+    "assets:razorpay_clearing": -54900
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "chargeback_3",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "adjustment",
+   "entity_id": "adj_cb3",
+   "report_amount_paise": -14900,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 0,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": "Chargeback for pay_x3 (reason: item not as described)"
+   }
+  },
+  "causes": [
+   "chargeback"
+  ],
+  "deltas": [
+   {
+    "revenue:sales": 14900,
+    "assets:razorpay_clearing": -14900
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "credit_adj_0",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "adjustment",
+   "entity_id": "adj_cr0",
+   "report_amount_paise": 2360,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 0,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": "Fee reversal for refunded payment pay_r1"
+   }
+  },
+  "causes": [
+   "other_adjustment",
+   "fee_difference"
+  ],
+  "deltas": [
+   {
+    "assets:razorpay_clearing": 2360,
+    "expenses:gateway_fees": -2360
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "credit_adj_1",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "adjustment",
+   "entity_id": "adj_cr1",
+   "report_amount_paise": 5900,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 0,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": "GST credit adjustment on gateway fees"
+   }
+  },
+  "causes": [
+   "other_adjustment",
+   "fee_difference"
+  ],
+  "deltas": [
+   {
+    "assets:razorpay_clearing": 5900,
+    "expenses:gateway_fees": -5900
+   }
+  ],
+  "allow_none": false
+ },
+ {
+  "name": "pending_0",
+  "facts": {
+   "status": "missing_in_report",
+   "entity_type": "payment",
+   "entity_id": "pay_new0",
+   "report_amount_paise": null,
+   "ledger_amount_paise": 179900,
+   "report_fee_paise": null,
+   "ledger_fee_paise": 4246,
+   "report_row": null
+  },
+  "causes": [
+   "pending_settlement"
+  ],
+  "deltas": [],
+  "allow_none": false
+ },
+ {
+  "name": "pending_1",
+  "facts": {
+   "status": "missing_in_report",
+   "entity_type": "payment",
+   "entity_id": "pay_new1",
+   "report_amount_paise": null,
+   "ledger_amount_paise": 29900,
+   "report_fee_paise": null,
+   "ledger_fee_paise": 706,
+   "report_row": null
+  },
+  "causes": [
+   "pending_settlement"
+  ],
+  "deltas": [],
+  "allow_none": false
+ },
+ {
+  "name": "pending_2",
+  "facts": {
+   "status": "missing_in_report",
+   "entity_type": "payment",
+   "entity_id": "pay_new2",
+   "report_amount_paise": null,
+   "ledger_amount_paise": 99900,
+   "report_fee_paise": null,
+   "ledger_fee_paise": 2358,
+   "report_row": null
+  },
+  "causes": [
+   "pending_settlement"
+  ],
+  "deltas": [],
+  "allow_none": false
+ },
+ {
+  "name": "pending_3",
+  "facts": {
+   "status": "missing_in_report",
+   "entity_type": "payment",
+   "entity_id": "pay_new3",
+   "report_amount_paise": null,
+   "ledger_amount_paise": 64900,
+   "report_fee_paise": null,
+   "ledger_fee_paise": 1532,
+   "report_row": null
+  },
+  "causes": [
+   "pending_settlement"
+  ],
+  "deltas": [],
+  "allow_none": false
+ },
+ {
+  "name": "amount_0",
+  "facts": {
+   "status": "amount_mismatch",
+   "entity_type": "payment",
+   "entity_id": "pay_amt0",
+   "report_amount_paise": 44900,
+   "ledger_amount_paise": 54900,
+   "report_fee_paise": 1296,
+   "ledger_fee_paise": 1296,
+   "report_row": {
+    "description": ""
+   }
+  },
+  "causes": [
+   "amount_error",
+   "data_error"
+  ],
+  "deltas": [
+   {
+    "revenue:sales": 10000,
+    "assets:razorpay_clearing": -10000
+   }
+  ],
+  "allow_none": true
+ },
+ {
+  "name": "amount_1",
+  "facts": {
+   "status": "amount_mismatch",
+   "entity_type": "payment",
+   "entity_id": "pay_amt1",
+   "report_amount_paise": 90000,
+   "ledger_amount_paise": 100000,
+   "report_fee_paise": 2360,
+   "ledger_fee_paise": 2360,
+   "report_row": {
+    "description": ""
+   }
+  },
+  "causes": [
+   "amount_error",
+   "data_error"
+  ],
+  "deltas": [
+   {
+    "revenue:sales": 10000,
+    "assets:razorpay_clearing": -10000
+   }
+  ],
+  "allow_none": true
+ },
+ {
+  "name": "amount_2",
+  "facts": {
+   "status": "amount_mismatch",
+   "entity_type": "payment",
+   "entity_id": "pay_amt2",
+   "report_amount_paise": 299000,
+   "ledger_amount_paise": 299900,
+   "report_fee_paise": 7078,
+   "ledger_fee_paise": 7078,
+   "report_row": {
+    "description": ""
+   }
+  },
+  "causes": [
+   "amount_error",
+   "data_error"
+  ],
+  "deltas": [
+   {
+    "revenue:sales": 900,
+    "assets:razorpay_clearing": -900
+   }
+  ],
+  "allow_none": true
+ },
+ {
+  "name": "amount_3",
+  "facts": {
+   "status": "amount_mismatch",
+   "entity_type": "payment",
+   "entity_id": "pay_amt3",
+   "report_amount_paise": 59900,
+   "ledger_amount_paise": 49900,
+   "report_fee_paise": 1178,
+   "ledger_fee_paise": 1178,
+   "report_row": {
+    "description": ""
+   }
+  },
+  "causes": [
+   "amount_error",
+   "data_error"
+  ],
+  "deltas": [
+   {
+    "revenue:sales": -10000,
+    "assets:razorpay_clearing": 10000
+   }
+  ],
+  "allow_none": true
+ },
+ {
+  "name": "data_zero",
+  "facts": {
+   "status": "missing_in_ledger",
+   "entity_type": "payment",
+   "entity_id": "pay_test0",
+   "report_amount_paise": 0,
+   "ledger_amount_paise": null,
+   "report_fee_paise": 0,
+   "ledger_fee_paise": null,
+   "report_row": {
+    "description": "Test transaction"
+   }
+  },
+  "causes": [
+   "data_error",
+   "other"
+  ],
+  "deltas": [],
+  "allow_none": false
+ },
+ {
+  "name": "data_pending_refund",
+  "facts": {
+   "status": "missing_in_report",
+   "entity_type": "refund",
+   "entity_id": "rfnd_new0",
+   "report_amount_paise": null,
+   "ledger_amount_paise": 20000,
+   "report_fee_paise": null,
+   "ledger_fee_paise": null,
+   "report_row": null
+  },
+  "causes": [
+   "pending_settlement"
+  ],
+  "deltas": [],
+  "allow_none": false
+ }
+]

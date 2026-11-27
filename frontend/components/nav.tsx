@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { IconLedger, IconOrders, IconOverview, IconWebhook } from "@/components/icons";
+import { IconLedger, IconOrders, IconOverview, IconReconcile, IconWebhook } from "@/components/icons";
 
 const LINKS = [
   { href: "/", label: "Overview", Icon: IconOverview },
   { href: "/orders", label: "Orders", Icon: IconOrders },
   { href: "/ledger", label: "Ledger", Icon: IconLedger },
   { href: "/webhooks", label: "Webhooks", Icon: IconWebhook },
+  { href: "/reconciliation", label: "Reconciliation", Icon: IconReconcile },
 ];
 
 export function Nav({ horizontal = false }: { horizontal?: boolean }) {

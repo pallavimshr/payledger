@@ -19,3 +19,4 @@ node_modules/
 next-env.d.ts
 .env.local
 *.tsbuildinfo
+razorpay_settlement_sample.csv
