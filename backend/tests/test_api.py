@@ -60,3 +60,16 @@ def test_same_idempotency_key_cannot_post_twice(client):
 def test_create_duplicate_account_returns_409(client):
     body = {"code": "assets:bank", "name": "Dup", "type": "asset"}
     assert client.post("/accounts", json=body).status_code == 409
+
+
+def test_stats_reflect_activity(client):
+    client.post("/journal-entries", json=sale())
+    s = client.get("/stats").json()
+    assert s["revenue_paise"] == 100_000
+    assert s["fees_paise"] == 2_000
+    assert s["gateway_held_paise"] == 98_000
+    assert s["journal_entries"] == 1 and s["orders_total"] == 0
+
+
+def test_retry_endpoint_with_nothing_pending(client):
+    assert client.post("/webhook-events/retry").json() == {"result": {}}

@@ -55,6 +55,18 @@ def build(kind: str, paise: int, payment_id: str | None, order_id: str | None = 
             "payload": {"settlement": {"entity": entity}}, "created_at": now}
 
 
+DEFAULT_URL = "http://localhost:8000/webhooks/razorpay"
+
+
+def send_event(event: dict, url: str = DEFAULT_URL, event_id: str | None = None, repeat: int = 1) -> list[dict]:
+    """Sign and POST an event like Razorpay would. Returns the API responses."""
+    body = json.dumps(event).encode()
+    signature = hmac.new(settings.razorpay_webhook_secret.encode(), body, hashlib.sha256).hexdigest()
+    headers = {"Content-Type": "application/json", "X-Razorpay-Signature": signature,
+               "X-Razorpay-Event-Id": event_id or rid("evt")}
+    return [httpx.post(url, content=body, headers=headers).json() for _ in range(repeat)]
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("kind", choices=["payment", "failed", "refund", "settlement"])
@@ -62,17 +74,13 @@ def main() -> None:
     ap.add_argument("--payment", help="payment id (for refunds, or to reuse an id)")
     ap.add_argument("--order", help="gateway_order_id from POST /orders, links the payment to it")
     ap.add_argument("--repeat", type=int, default=1, help="send the same event N times")
-    ap.add_argument("--url", default="http://localhost:8000/webhooks/razorpay")
+    ap.add_argument("--url", default=DEFAULT_URL)
     args = ap.parse_args()
 
-    body = json.dumps(build(args.kind, round(args.amount * 100), args.payment, args.order)).encode()
-    signature = hmac.new(settings.razorpay_webhook_secret.encode(), body, hashlib.sha256).hexdigest()
-    headers = {"Content-Type": "application/json", "X-Razorpay-Signature": signature,
-               "X-Razorpay-Event-Id": rid("evt")}
-    for i in range(args.repeat):
-        r = httpx.post(args.url, content=body, headers=headers)
-        print(f"#{i + 1}: {r.status_code} {r.json()}")
-    entity = next(iter(json.loads(body)["payload"].values()))["entity"]
+    event = build(args.kind, round(args.amount * 100), args.payment, args.order)
+    for i, resp in enumerate(send_event(event, args.url, repeat=args.repeat), start=1):
+        print(f"#{i}: {resp}")
+    entity = next(iter(event["payload"].values()))["entity"]
     print(f"   {entity['entity']} id: {entity['id']}")
 
 

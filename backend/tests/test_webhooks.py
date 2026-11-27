@@ -134,3 +134,19 @@ def test_unbalanced_handler_output_fails_safely(client, monkeypatch):
     r = send(client, payment_event())
     assert r.json()["status"] == "failed"
     assert client.get("/journal-entries").json() == []
+
+
+def test_webhook_list_filters_by_status_and_includes_payload(client):
+    send(client, payment_event(), "evt_ok")
+    send(client, {"event": "payment.authorized", "payload": {}}, "evt_ign")
+    events = client.get("/webhook-events?status=processed").json()
+    assert [e["event_id"] for e in events] == ["evt_ok"]
+    assert events[0]["payload"]["payload"]["payment"]["entity"]["id"] == "pay_A"
+
+
+def test_journal_entries_filter_by_account(client):
+    send(client, payment_event(), "evt_1")
+    send(client, settlement_event(amount=97_640), "evt_2")
+    bank = client.get("/journal-entries?account=assets:bank").json()
+    assert len(bank) == 1 and "settlement" in bank[0]["description"].lower()
+    assert len(client.get("/journal-entries?account=assets:razorpay_clearing").json()) == 2

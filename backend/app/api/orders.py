@@ -2,7 +2,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -54,11 +54,24 @@ def create(body: OrderCreate, session: Session = Depends(get_session)):
 
 
 @router.get("/orders", response_model=list[OrderOut])
-def list_orders(status: str | None = None, limit: int = 50, session: Session = Depends(get_session)):
-    q = select(Order).order_by(Order.created_at.desc()).limit(min(limit, 200))
+def list_orders(
+    status: str | None = None,
+    q: str | None = None,
+    limit: int = 50,
+    session: Session = Depends(get_session),
+):
+    """List orders. `q` searches order number, gateway order id and payment id."""
+    query = select(Order).order_by(Order.created_at.desc()).limit(min(limit, 200))
     if status:
-        q = q.where(Order.status == status)
-    return [OrderOut(**_out(o)) for o in session.scalars(q)]
+        query = query.where(Order.status == status)
+    if q and q.strip():
+        term = f"%{q.strip()}%"
+        query = query.where(or_(
+            Order.external_id.ilike(term),
+            Order.gateway_order_id.ilike(term),
+            Order.gateway_payment_id.ilike(term),
+        ))
+    return [OrderOut(**_out(o)) for o in session.scalars(query)]
 
 
 @router.get("/orders/{order_id}", response_model=OrderDetail)

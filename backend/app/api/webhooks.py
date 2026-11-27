@@ -49,15 +49,17 @@ async def razorpay_webhook(request: Request, session: Session = Depends(get_sess
 
 
 @router.get("/webhook-events")
-def list_webhook_events(limit: int = 50, session: Session = Depends(get_session)):
-    events = session.scalars(
-        select(WebhookEvent).order_by(WebhookEvent.received_at.desc()).limit(min(limit, 200))
-    )
+def list_webhook_events(status: str | None = None, limit: int = 50, session: Session = Depends(get_session)):
+    query = select(WebhookEvent).order_by(WebhookEvent.received_at.desc()).limit(min(limit, 200))
+    if status:
+        query = query.where(WebhookEvent.status == status)
+    events = session.scalars(query)
     return [
         {
             "event_id": e.event_id, "provider": e.provider, "event_type": e.event_type,
             "status": e.status, "attempts": e.attempts, "last_error": e.last_error,
             "received_at": e.received_at, "processed_at": e.processed_at,
+            "payload": e.payload,
         }
         for e in events
     ]

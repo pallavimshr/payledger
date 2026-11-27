@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_session
 from app.ledger import LedgerError, PostingLine, account_balances, post_entry
-from app.models import Account, JournalEntry
+from app.models import Account, JournalEntry, Posting
 from app.schemas import (
     AccountCreate,
     AccountOut,
@@ -62,10 +62,14 @@ def _entry_out(entry: JournalEntry) -> JournalEntryOut:
 
 
 @router.get("/journal-entries", response_model=list[JournalEntryOut])
-def list_entries(limit: int = 50, session: Session = Depends(get_session)):
-    entries = session.scalars(
-        select(JournalEntry).order_by(JournalEntry.created_at.desc()).limit(min(limit, 200))
-    )
+def list_entries(account: str | None = None, limit: int = 50, session: Session = Depends(get_session)):
+    """List journal entries, newest first. `account` = only entries touching that account code."""
+    query = select(JournalEntry).order_by(JournalEntry.created_at.desc()).limit(min(limit, 200))
+    if account:
+        query = query.where(
+            JournalEntry.postings.any(Posting.account.has(Account.code == account))
+        )
+    entries = session.scalars(query)
     return [_entry_out(e) for e in entries]
 
 

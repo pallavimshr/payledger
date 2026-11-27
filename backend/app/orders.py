@@ -94,7 +94,7 @@ def on_payment_captured(session: Session, gateway_order_id: str | None, payment_
     order.gateway_payment_id = payment_id
     transition(session, order, S.PAID, f"Payment {payment_id} captured")
     if amount != order.amount_paise:
-        add_note(session, order, f"Amount mismatch: paid {amount}, expected {order.amount_paise}")
+        add_note(session, order, f"Amount mismatch: paid ₹{amount / 100:,.2f}, expected ₹{order.amount_paise / 100:,.2f}")
 
 
 def on_payment_failed(session: Session, gateway_order_id: str | None, payment_id: str, reason: str) -> None:
@@ -122,7 +122,7 @@ def on_refund_processed(session: Session, payment_id: str | None, refund_id: str
     session.add(Refund(order_id=order.id, gateway_refund_id=refund_id, amount_paise=amount))
     order.amount_refunded_paise += amount
     to = S.REFUNDED if order.amount_refunded_paise == order.amount_paise else S.PARTIALLY_REFUNDED
-    transition(session, order, to, f"Refund {refund_id} of {amount} paise processed")
+    transition(session, order, to, f"Refund {refund_id} of ₹{amount / 100:,.2f} processed")
 
 
 def cancel_order(session: Session, order: Order) -> None:

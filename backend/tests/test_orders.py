@@ -171,3 +171,11 @@ def test_list_orders_filter_by_status(client):
     a, b = new_order(client, "A"), new_order(client, "B")
     pay(client, a)
     assert [o["external_id"] for o in client.get("/orders?status=paid").json()] == ["A"]
+
+
+def test_search_orders_by_number_and_payment_id(client):
+    a, b = new_order(client, "PD-ALPHA"), new_order(client, "PD-BETA")
+    pay(client, b, pay_id="pay_findme")
+    assert [o["external_id"] for o in client.get("/orders?q=alpha").json()] == ["PD-ALPHA"]
+    assert [o["external_id"] for o in client.get("/orders?q=findme").json()] == ["PD-BETA"]
+    assert len(client.get("/orders?q=").json()) == 2

@@ -16,3 +16,6 @@ node_modules/
 .idea/
 # Local test DBs
 *.db
+next-env.d.ts
+.env.local
+*.tsbuildinfo
